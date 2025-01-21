@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Redirect App</title>
+  <script>
+    // Fallback function to generate a UUID
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
+    }
+
+    async function fetchHost() {
+      const response = await fetch('/config');
+      const config = await response.json();
+      return config.host;
+    }
+
+    async function initialize() {
+      const host = await fetchHost();
+      const uuid = generateUUID(); // Use the custom UUID generator
+      const sessionURL = `http://${host}:3000/session/${uuid}`;
+
+      function generateQRCode() {
+        const qrCodeDiv = document.getElementById('qrcode');
+        new QRCode(qrCodeDiv, {
+          text: sessionURL,
+          width: 200,
+          height: 200,
+        });
+      }
+
+      async function listenForRedirect() {
+        const eventSource = new EventSource(`/events/${uuid}`);
+
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log('Received redirect event:', data);
+            if (data.url) {
+            console.log('Redirecting to:', data.url);
+            window.location.href = data.url;
+            }
+        };
+
+        eventSource.onerror = (error) => {
+            console.error('EventSource error:', error);
+            eventSource.close();
+        };
+        }
+
+      
+      
+
+      generateQRCode();
+      listenForRedirect();
+    }
+
+    window.onload = initialize;
+  </script>
+</head>
+<body>
+  <h1>QR Code Redirect</h1>
+  <p>Scan the QR code on your phone to enter a URL.</p>
+  <div id="qrcode"></div>
+
+  <!-- Include a QR Code library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+</body>
+</html>
