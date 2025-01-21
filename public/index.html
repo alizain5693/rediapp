@@ -21,9 +21,15 @@
     }
 
     async function initialize() {
-      const host = await fetchHost();
-      const uuid = generateUUID(); // Use the custom UUID generator
-      const sessionURL = `http://${host}:3000/session/${uuid}`;
+      // const host = await fetchHost();
+      // const uuid = generateUUID(); // Use the custom UUID generator
+      // const sessionURL = `http://${host}:3000/session/${uuid}`;
+
+      const response = await fetch('/config');
+      const config = await response.json();
+      const uuid = generateUUID();
+      // Use the full host URL from config
+      const sessionURL = `${config.host}/session/${uuid}`;
 
       function generateQRCode() {
         const qrCodeDiv = document.getElementById('qrcode');

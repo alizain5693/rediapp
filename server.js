@@ -8,17 +8,17 @@ const app = express();
 const PORT = 3000;
 
 // Function to get the private IP address of the machine
-function getLocalIPAddress() {
-  const interfaces = os.networkInterfaces();
-  for (const iface of Object.values(interfaces)) {
-    for (const info of iface) {
-      if (info.family === 'IPv4' && !info.internal) {
-        return info.address; // Return the first non-internal IPv4 address
-      }
-    }
-  }
-  return 'localhost'; // Fallback to localhost if no private IP is found
-}
+// function getLocalIPAddress() {
+//   const interfaces = os.networkInterfaces();
+//   for (const iface of Object.values(interfaces)) {
+//     for (const info of iface) {
+//       if (info.family === 'IPv4' && !info.internal) {
+//         return info.address; // Return the first non-internal IPv4 address
+//       }
+//     }
+//   }
+//   return 'localhost'; // Fallback to localhost if no private IP is found
+// }
 
 const localIP = getLocalIPAddress();
 
@@ -30,7 +30,11 @@ app.use(express.static('public')); // Serve the front-end
 
 // Endpoint to provide the host configuration
 app.get('/config', (req, res) => {
-  res.json({ host: localIP });
+  // res.json({ host: localIP });
+    // For local development, you can check the environment
+    const host = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+    res.json({ host });
+  
 });
 
 app.post('/session/:id', (req, res) => {
@@ -122,7 +126,13 @@ app.get('/events/:id', (req, res) => {
   });
 });
 
+// // Start server
+// app.listen(PORT, () => {
+//   console.log(`Server is running at http://${localIP}:${PORT}`);
+// });
+
+
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server is running at http://${localIP}:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
