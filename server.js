@@ -20,7 +20,7 @@ const PORT = 3000;
 //   return 'localhost'; // Fallback to localhost if no private IP is found
 // }
 
-const localIP = getLocalIPAddress();
+// const localIP = getLocalIPAddress();
 
 // Event emitters to handle SSE for each session
 const sessions = new Map();
